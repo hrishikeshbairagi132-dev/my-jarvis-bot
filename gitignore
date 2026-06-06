@@ -1,0 +1,4 @@
+.streamlit/secrets.toml
+trade_log_paper.csv
+__pycache__/
+.DS_Store
