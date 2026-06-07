@@ -10,7 +10,39 @@ def _get_ticker_symbol(ticker):
     ticker = ticker.upper().strip()
     if _is_crypto(ticker):
         return f"{ticker}-USD"
+    elif not ticker.endswith(".NS") and not ticker.endswith(".BO"):import yfinance as yf
+import pandas as pd
+import numpy as np
+
+def _get_ticker_symbol(ticker):
+    # यह फंक्शन स्टॉक (.NS) और क्रिप्टो (-USD) को अपने आप पहचानेगा
+    ticker = ticker.upper().strip()
+    if ticker in ['BTC', 'ETH', 'SOL', 'BNB', 'XRP']:
+        return f"{ticker}-USD"
     elif not ticker.endswith(".NS") and not ticker.endswith(".BO"):
+        return f"{ticker}.NS"
+    return ticker
+
+def fetch_data(ticker):
+    try:
+        symbol = _get_ticker_symbol(ticker)
+        data = yf.download(symbol, period="1mo", interval="1d")
+        if data.empty: return None
+        
+        # इंडिकेटर्स
+        data['vwap'] = (data['Volume'] * (data['High'] + data['Low'] + data['Close']) / 3).cumsum() / data['Volume'].cumsum()
+        data['ema20'] = data['Close'].ewm(span=20, adjust=False).mean()
+        
+        # RSI कैलकुलेशन
+        delta = data['Close'].diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        rs = gain / (loss + 1e-9)
+        data['rsi'] = 100 - (100 / (1 + rs))
+        return data
+    except:
+        return None
+
         return f"{ticker}.NS"
     return ticker
 
