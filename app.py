@@ -41,4 +41,19 @@ with tab2:
             st.session_state.paper_balance -= st.session_state.current_signal['price']
             st.success("Trade Executed!")
     else:
-        st.info("No signal loaded.")
+        st.info("No signal loaded.")import streamlit as st
+from core import fetch_data
+
+st.set_page_config(page_title="JARVIS Pro", layout="wide")
+st.title("🦅 JARVIS Pro Terminal")
+
+q = st.text_input("Enter Ticker (e.g. BHEL or BTC)")
+if st.button("Search"):
+    df = fetch_data(q)
+    if df is not None and not df.empty:
+        last = df.iloc[-1]
+        st.metric("Live Price", f"{last['Close'].iloc[0]:.2f}")
+        st.write(f"RSI: {last['rsi'].iloc[0]:.2f}")
+    else:
+        st.error("Ticker not found or network issue.")
+
