@@ -5,3 +5,6 @@ plotly
 requests
 numpy
 pytz
+streamlit
+pandas
+pytz
